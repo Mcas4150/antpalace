@@ -1,6 +1,8 @@
 // wrap Janus.init + attach logic
 // modules/janusClient.js
 
+import Janus from "janus-gateway";
+
 let plugin = null; // Keep plugin handle within this module
 
 // handleAttach: Called when the Janus plugin is successfully attached.
