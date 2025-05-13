@@ -31,8 +31,26 @@ export class RendererManager {
         this.sceneVideo.children[0].material.map.needsUpdate = true;
       this.renderer.autoClear = false;
       this.renderer.clear();
+      // Commented out existing render calls to draw a single pixel
+      // this.renderer.render(this.sceneVideo, this.camera);
+      // this.renderer.render(this.sceneTrail, this.camera);
+
+      // Create a simple geometry for a single point
+      const geometry = new THREE.BufferGeometry();
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0], 3)); // Center of the screen
+
+      // Create a material for the point (white color, size 1 pixel)
+      const material = new THREE.PointsMaterial({ color: 0xffffff, size: 10 });
+
+      // Create the Points object
+      const pixel = new THREE.Points(geometry, material);
+
+      // Add the pixel to the video scene
+      this.sceneVideo.add(pixel);
+
+      // Render the video scene (which now contains the pixel)
       this.renderer.render(this.sceneVideo, this.camera);
-      this.renderer.render(this.sceneTrail, this.camera);
+      // Keep the trail scene render commented out
+      // this.renderer.render(this.sceneTrail, this.camera);
     }
   }
-  
