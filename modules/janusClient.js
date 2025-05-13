@@ -27,39 +27,43 @@ function handleMessage(msg, jsep) {
 }
 
 
-export function initJanus(server, streamId, { onRemoteTrack }) {
-    Janus.init({
-      debug: 'warn',
-      callback() {
-        // when Janus.init is done, construct a new Janus session
-        const janus = new Janus({
-          server,
-          iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],
-          success() {
-            // here `janus` is in scope
-            janus.attach({
-              plugin: 'janus.plugin.streaming',
-              success(handle) {
-                handleAttach(handle, streamId); // Call the local handleAttach
-              },
-              onmessage(msg, jsep) {
-                handleMessage(msg, jsep); // Call the local handleMessage
-              },
-              onremotetrack(track, mid, on) {
-                onRemoteTrack(track, mid, on);
-              },
-              error(err) {
-                console.error('Janus plugin error:', err);
-              }
-            });
-          },
-          error(err) {
-            console.error('Janus session error:', err);
-          },
-          destroyed() {
-            console.log('Janus session destroyed');
-          }
-        });
-      }
-    });
+export async function initJanus(server, streamId, { onRemoteTrack }) {
+  if (!window.Janus) {
+    await import(
+      "https://cdn.jsdelivr.net/npm/janus-gateway@1.3.1/npm/janus.min.js"
+    );
   }
+
+  window.Janus.init({
+    debug: "warn",
+    callback() {
+      const janus = new window.Janus({
+        server,
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        success() {
+          janus.attach({
+            plugin: "janus.plugin.streaming",
+            success(handle) {
+              handleAttach(handle, streamId);
+            },
+            onmessage(msg, jsep) {
+              handleMessage(msg, jsep);
+            },
+            onremotetrack(track, mid, on) {
+              onRemoteTrack(track, mid, on);
+            },
+            error(err) {
+              console.error("Janus plugin error:", err);
+            },
+          });
+        },
+        error(err) {
+          console.error("Janus session error:", err);
+        },
+        destroyed() {
+          console.log("Janus session destroyed");
+        },
+      });
+    },
+  });
+}
